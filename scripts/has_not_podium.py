@@ -34,18 +34,21 @@ hasNotPodium = (
 hasNotPodium = pd.merge(hasNotPodium, drivers, on='driverId')
 
 # create the column Nome
-hasNotPodium['Nome'] = hasNotPodium.apply(
+hasNotPodium['name'] = hasNotPodium.apply(
     lambda x: x['forename'] + ' '+ x['surname'].replace('_', '').replace('Ì', 'i'),
     axis = 1
 )
 
 
 # select columns
-hasNotPodium = hasNotPodium[['nationality', 'Nome', 'dob', 'points_x']]
+hasNotPodium = hasNotPodium[['nationality', 'name', 'dob', 'points_x']]
+
+#df = {df.columns[0]:'nationality', df.columns[1]: 'name', df.columns[2]:'dob', df.columns[3]: 'points_x'}
 
 # rename columns
-hasNotPodium = hasNotPodium.rename({'nationality': 'Nacionalidade' , 'dob' : 'Nascimento', 'points_x': 'Total de pontos'})
+hasNotPodium.columns=['Nacionalidade:' , 'Nome:', 'Nascimento:', 'Total de pontos:']
 
+# save the xlsx file
 writer = pd.ExcelWriter('nerver_podium.xlsx')
 hasNotPodium.to_excel(writer,'Sheet1')
 writer.save()
