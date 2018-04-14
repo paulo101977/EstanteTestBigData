@@ -1,14 +1,6 @@
 import numpy as np
 import pandas as pd
 
-# read the Dataframe from races.csv
-#races = pd.read_csv('races.csv')
-
-# read constructor info
-#constructor = pd.read_csv('constructors.csv')
-#cons_result = pd.read_csv('constructorResults.csv')
-#constructor = pd.merge(constructor, cons_result, on='constructorId')
-
 
 # read driver info
 driversInfo = pd.read_csv('driverStandings.csv')
@@ -18,33 +10,42 @@ drivers = pd.read_csv('drivers.csv', encoding="latin1")
 results = pd.read_csv('results.csv', encoding="latin1")
 
 # select all podiums
-hasPodium = pd.unique(results[results['rank'] < 4  ].groupby('driverId')['driverId'].head())
+hasPodium = pd.unique(results[results['position'] < 4  ]['driverId'])
 
 hasNotPodium = results[~results['driverId'].isin(hasPodium)]
-
-
-#drop
-print(hasNotPodium)
 
 
 # get racer points
 hasNotPodium = pd.merge(hasNotPodium, driversInfo, on='driverId')
 
 
-hasNotPodium = ( 
+# sum the points and get last
+hasNotPodium = (
     hasNotPodium
-        .groupby(['driverId'])
+        .groupby(['driverId'])['points_x']
         .sum()
         .reset_index()
-        .sort_values('points', ascending = False) 
+        .sort_values('points_x', ascending = False)
         .head(1)
 )
 
 
-
-print(hasNotPodium)
-#hasNotPodium = pb.merge(driver)
-
+# get  the driver info
 hasNotPodium = pd.merge(hasNotPodium, drivers, on='driverId')
 
-print(hasNotPodium)
+# create the column Nome
+hasNotPodium['Nome'] = hasNotPodium.apply(
+    lambda x: x['forename'] + ' '+ x['surname'].replace('_', '').replace('Ì', 'i'),
+    axis = 1
+)
+
+
+# select columns
+hasNotPodium = hasNotPodium[['nationality', 'Nome', 'dob', 'points_x']]
+
+# rename columns
+hasNotPodium = hasNotPodium.rename({'nationality': 'Nacionalidade' , 'dob' : 'Nascimento', 'points_x': 'Total de pontos'})
+
+writer = pd.ExcelWriter('nerver_podium.xlsx')
+hasNotPodium.to_excel(writer,'Sheet1')
+writer.save()
