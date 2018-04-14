@@ -19,7 +19,7 @@ hasNotPodium = results[~results['driverId'].isin(hasPodium)]
 hasNotPodium = pd.merge(hasNotPodium, driversInfo, on='driverId')
 
 
-# sum the points and get last
+# sum the points and get the higher
 hasNotPodium = (
     hasNotPodium
         .groupby(['driverId'])['points_x']
