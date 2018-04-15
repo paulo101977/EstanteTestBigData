@@ -28,12 +28,12 @@ df = pd.merge(races, pitstop, on='raceId')
 #print(df)
 
 
-df = ( 
+df = (
     df
         .groupby([ 'milliseconds'])
         .min()
-        .groupby('name_x')
-        .head()[['name_x', 'year', 'driverId', 'name_y']]
+        .groupby('year')
+        .head(1)[['name_x', 'year', 'driverId', 'name_y']]
         .reset_index()
 )
 
@@ -50,18 +50,19 @@ df = df.sort_values('year', ascending=False)
 
 df = df[['year', 'milliseconds', 'name_x', 'pilot', 'name_y']]
 
+
+
 #rename columns
 df = df.rename(
     columns={
-        'year': 'Temporada:', 
-        'milliseconds': 'Pit stop mili:', 
+        'year': 'Temporada:',
+        'milliseconds': 'Pit stop mili:',
         'name_x': 'Corrida:',
         'pilot': 'Piloto:',
         'name_y': 'Equipe:'
     }
 )
 
-print('saving...')
-writer = pd.ExcelWriter('pitstop.xlsx')
+writer = pd.ExcelWriter('pitstop_season.xlsx')
 df.to_excel(writer,'Sheet1')
 writer.save()
